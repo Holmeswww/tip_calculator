@@ -2,292 +2,1020 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tip & Split Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%2309090b'/%3E%3Crect x='24' y='24' width='464' height='464' rx='108' fill='none' stroke='%2327272a' stroke-width='16'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%2310b981' font-family='-apple-system, BlinkMacSystemFont, sans-serif' font-size='280' font-weight='800'%3E%24%3C/text%3E%3C/svg%3E" />
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Tip Calculator","short_name":"Tip","start_url":"./","scope":"./","display":"standalone","background_color":"#09090b","theme_color":"#09090b","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 rx=%27128%27 fill=%27%2309090b%27/%3E%3Ctext x=%2750%25%27 y=%2754%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%2310b981%27 font-family=%27sans-serif%27 font-size=%27280%27 font-weight=%27800%27%3E%24%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}' />
+  <title>Tip</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --border: #334155;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
+      --bg: #09090b;
+      --card: #121215;
+      --surface: #1c1c21;
+      --surface-hover: #26262c;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-strong: rgba(255, 255, 255, 0.13);
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --text-dim: #52525b;
+      --accent: #10b981;
+      --accent-soft: rgba(16, 185, 129, 0.14);
+      --accent-glow: rgba(16, 185, 129, 0.35);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Display", "Inter", system-ui, sans-serif;
     }
 
     body {
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 55%);
       color: var(--text);
-      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
-      align-items: center;
       justify-content: center;
-      padding: 1rem;
+      align-items: flex-start;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
     }
 
-    .calculator {
+    .app {
+      width: 100%;
+      max-width: 410px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Top Bar: Segmented Mode Switch + Location Badge */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .seg-control {
+      position: relative;
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--surface);
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .seg-btn {
+      position: relative;
+      z-index: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: color 0.2s ease, background 0.2s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .seg-btn.active {
+      background: var(--text);
+      color: var(--bg);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .loc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.2s ease, transform 0.1s ease;
+      max-width: 54%;
+    }
+
+    .loc-badge:active {
+      transform: scale(0.96);
+    }
+
+    .loc-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+      flex-shrink: 0;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    }
+
+    .loc-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    #loc-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Hero Bill Amount Display */
+    .hero-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      width: 100%;
-      max-width: 420px;
-      padding: 1.5rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      border-radius: var(--radius-xl);
+      padding: 20px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      transition: border-color 0.2s ease;
     }
 
-    .form-group {
-      margin-bottom: 1.25rem;
+    .hero-card:focus-within {
+      border-color: var(--border-strong);
     }
 
-    label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 0.4rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    input, select {
-      width: 100%;
-      background: #0f172a;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.65rem 0.85rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--accent);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-
-    .tip-buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .tip-btn {
-      background: #0f172a;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.5rem;
-      border-radius: 6px;
-      font-size: 0.9rem;
+    .hero-caption {
+      font-size: 0.72rem;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .hero-input-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      width: 100%;
+      position: relative;
+    }
+
+    .hero-currency {
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-right: 4px;
+      user-select: none;
+    }
+
+    #bill-input {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 3.35rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      width: 210px;
+      text-align: center;
+      outline: none;
+      font-variant-numeric: tabular-nums;
+      caret-color: var(--accent);
+      -moz-appearance: textfield;
+    }
+
+    #bill-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
     }
 
-    .tip-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #0f172a;
+    .clear-btn.visible {
+      display: inline-flex;
     }
 
-    .results {
-      margin-top: 1.5rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--border);
+    /* Unified Parameter Strip (Tax | Mandate | Split) */
+    .param-strip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.25fr;
+      overflow: hidden;
     }
 
-    .summary-row {
+    .param-cell {
+      padding: 11px 12px;
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
+      gap: 4px;
+      position: relative;
     }
 
-    .summary-row.total {
+    .param-cell:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 18%;
+      height: 64%;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .param-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .param-value-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+
+    .param-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
       font-size: 1.15rem;
       font-weight: 700;
-      color: var(--text);
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px dashed var(--border);
+      outline: none;
+      font-variant-numeric: tabular-nums;
+      padding: 0;
+      -moz-appearance: textfield;
     }
 
-    .split-highlight {
-      background: #0f172a;
-      border: 1px solid var(--accent);
+    .param-unit {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Split Stepper Inside Strip */
+    .split-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .step-btn {
+      width: 26px;
+      height: 26px;
       border-radius: 8px;
-      padding: 0.85rem;
-      margin-top: 1rem;
-      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
     }
 
-    .split-highlight .amount {
-      font-size: 1.6rem;
-      font-weight: 800;
+    .step-btn:active {
+      background: var(--surface-hover);
+      transform: scale(0.94);
+    }
+
+    #split-count {
+      text-align: center;
+      width: 34px;
+    }
+
+    /* Tip Selector Section */
+    .tip-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .tip-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .tip-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .tip-pill .pct {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .tip-pill .amt {
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tip-pill.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.14);
+    }
+
+    .tip-pill.active .pct {
       color: var(--accent);
-      margin-top: 0.2rem;
+    }
+
+    .tip-pill.active .amt {
+      color: var(--text);
+    }
+
+    .custom-drawer {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .custom-drawer.visible {
+      display: flex;
+    }
+
+    .custom-drawer span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .custom-input-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    #custom-tip {
+      width: 70px;
+      text-align: right;
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 1.15rem;
+      font-weight: 700;
+      outline: none;
+    }
+
+    /* Receipt Summary Card */
+    .receipt-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+    }
+
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .line-item .val {
+      color: var(--text);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .receipt-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2px 0;
+    }
+
+    .line-item.grand {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .line-item.grand .val {
+      font-size: 1.12rem;
+      font-weight: 800;
+    }
+
+    /* Primary Split / Copy Action Bar */
+    .split-banner {
+      margin-top: 4px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.07));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .split-banner:active {
+      transform: scale(0.985);
+    }
+
+    .split-banner.copied {
+      background: rgba(16, 185, 129, 0.28);
+      border-color: var(--accent);
+    }
+
+    .split-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .split-heading {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .split-sub {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .split-figure {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
     }
   </style>
 </head>
 <body>
 
-  <div class="calculator">
-    <div class="form-group">
-      <label for="bill">Bill Subtotal ($)</label>
-      <input type="number" id="bill" placeholder="0.00" min="0" step="0.01" />
+  <main class="app">
+    <!-- Top Bar: Segmented Switch + GPS Pill -->
+    <div class="top-bar">
+      <div class="seg-control" role="group" aria-label="Bill input mode">
+        <button type="button" class="seg-btn active" id="mode-after">After-Tax</button>
+        <button type="button" class="seg-btn" id="mode-pre">Pre-Tax</button>
+      </div>
+
+      <button type="button" class="loc-badge" id="refresh-loc" title="Tap to refresh location">
+        <span class="loc-dot" id="loc-dot"></span>
+        <span id="loc-text">Locating...</span>
+      </button>
     </div>
 
-    <div class="grid-2">
-      <div class="form-group">
-        <label for="state">Location / State</label>
-        <select id="state">
-          <option value="0">Select state...</option>
-          <option value="4.00">AL (4.00%)</option>
-          <option value="0.00">AK (0.00%)</option>
-          <option value="5.60">AZ (5.60%)</option>
-          <option value="7.25" selected>CA (7.25%)</option>
-          <option value="2.90">CO (2.90%)</option>
-          <option value="6.35">CT (6.35%)</option>
-          <option value="0.00">DE (0.00%)</option>
-          <option value="6.00">FL (6.00%)</option>
-          <option value="4.00">GA (4.00%)</option>
-          <option value="4.00">HI (4.00%)</option>
-          <option value="6.25">IL (6.25%)</option>
-          <option value="6.00">MD (6.00%)</option>
-          <option value="6.25">MA (6.25%)</option>
-          <option value="6.00">MI (6.00%)</option>
-          <option value="7.00">NJ (7.00%)</option>
-          <option value="4.00">NY (4.00%)</option>
-          <option value="0.00">OR (0.00%)</option>
-          <option value="6.00">PA (6.00%)</option>
-          <option value="6.25">TX (6.25%)</option>
-          <option value="6.50">WA (6.50%)</option>
-        </select>
+    <!-- Hero Bill Display -->
+    <section class="hero-card">
+      <div class="hero-caption" id="hero-caption">After-Tax Receipt Total</div>
+      <div class="hero-input-row">
+        <span class="hero-currency">$</span>
+        <input type="number" id="bill-input" placeholder="0.00" min="0" step="0.01" inputmode="decimal" autofocus />
+        <button type="button" class="clear-btn" id="clear-bill" aria-label="Clear amount">×</button>
+      </div>
+    </section>
+
+    <!-- Unified 3-Cell Parameter Strip -->
+    <section class="param-strip">
+      <div class="param-cell">
+        <label class="param-label" for="tax-rate">Sales Tax</label>
+        <div class="param-value-wrap">
+          <input type="number" class="param-input" id="tax-rate" value="9.13" min="0" max="25" step="0.01" inputmode="decimal" />
+          <span class="param-unit">%</span>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="tax-rate">Tax Rate (%)</label>
-        <input type="number" id="tax-rate" value="7.25" min="0" step="0.01" />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Tip Percentage</label>
-      <div class="tip-buttons">
-        <button type="button" class="tip-btn" data-percent="15">15%</button>
-        <button type="button" class="tip-btn active" data-percent="18">18%</button>
-        <button type="button" class="tip-btn" data-percent="20">20%</button>
-        <button type="button" class="tip-btn" data-percent="custom">Custom</button>
-      </div>
-      <input type="number" id="custom-tip" placeholder="Custom Tip %" min="0" step="0.1" style="display: none;" />
-    </div>
-
-    <div class="form-group">
-      <label for="split-count">Split Between (People)</label>
-      <input type="number" id="split-count" value="1" min="1" step="1" />
-    </div>
-
-    <div class="results">
-      <div class="summary-row">
-        <span>Tax Amount:</span>
-        <span id="tax-amount">$0.00</span>
-      </div>
-      <div class="summary-row">
-        <span>Tip Amount:</span>
-        <span id="tip-amount">$0.00</span>
-      </div>
-      <div class="summary-row total">
-        <span>Grand Total:</span>
-        <span id="total-amount">$0.00</span>
+      <div class="param-cell">
+        <label class="param-label" for="fee-rate">Mandate</label>
+        <div class="param-value-wrap">
+          <input type="number" class="param-input" id="fee-rate" value="0.00" min="0" max="30" step="0.25" inputmode="decimal" />
+          <span class="param-unit">%</span>
+        </div>
       </div>
 
-      <div class="split-highlight">
-        <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Amount Per Person</span>
-        <div class="amount" id="per-person">$0.00</div>
+      <div class="param-cell">
+        <label class="param-label" for="split-count">Split</label>
+        <div class="split-controls">
+          <button type="button" class="step-btn" id="split-minus" aria-label="Decrease split">−</button>
+          <input type="number" class="param-input" id="split-count" value="1" min="1" step="1" inputmode="numeric" />
+          <button type="button" class="step-btn" id="split-plus" aria-label="Increase split">+</button>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
+
+    <!-- Tip Presets with Live Dollar Preview -->
+    <section class="tip-section">
+      <div class="section-header">
+        <span>Tip on Base Subtotal</span>
+        <span id="active-tip-label">18%</span>
+      </div>
+      <div class="tip-grid">
+        <button type="button" class="tip-pill" data-tip="20">
+          <span class="pct">20%</span>
+          <span class="amt" id="preview-20">$0</span>
+        </button>
+        <button type="button" class="tip-pill active" data-tip="18">
+          <span class="pct">18%</span>
+          <span class="amt" id="preview-18">$0</span>
+        </button>
+        <button type="button" class="tip-pill" data-tip="15">
+          <span class="pct">15%</span>
+          <span class="amt" id="preview-15">$0</span>
+        </button>
+        <button type="button" class="tip-pill" data-tip="12">
+          <span class="pct">12%</span>
+          <span class="amt" id="preview-12">$0</span>
+        </button>
+        <button type="button" class="tip-pill" data-tip="custom">
+          <span class="pct">Other</span>
+          <span class="amt" id="preview-custom">%</span>
+        </button>
+      </div>
+
+      <div class="custom-drawer" id="custom-tip-wrap">
+        <span>Custom Tip Percentage</span>
+        <div class="custom-input-wrap">
+          <input type="number" id="custom-tip" placeholder="0.0" min="0" max="100" step="0.5" inputmode="decimal" />
+          <span class="param-unit">%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Receipt Breakdown & Copy Banner -->
+    <section class="receipt-card">
+      <div class="line-item">
+        <span>Base Pre-Tax Subtotal</span>
+        <span class="val" id="out-subtotal">$0.00</span>
+      </div>
+      <div class="line-item" id="mandate-row">
+        <span id="out-fee-label">Mandate / Surcharge (0%)</span>
+        <span class="val" id="out-fee">$0.00</span>
+      </div>
+      <div class="line-item">
+        <span id="out-tax-label">Sales Tax (9.13%)</span>
+        <span class="val" id="out-tax">$0.00</span>
+      </div>
+      <div class="line-item">
+        <span>Tip Amount</span>
+        <span class="val" id="out-tip">$0.00</span>
+      </div>
+
+      <div class="receipt-divider"></div>
+
+      <div class="line-item grand">
+        <span>Grand Total</span>
+        <span class="val" id="out-grand">$0.00</span>
+      </div>
+
+      <div class="split-banner" id="copy-split-box" role="button" tabindex="0">
+        <div class="split-meta">
+          <span class="split-heading" id="per-person-label">Your Total</span>
+          <span class="split-sub" id="copy-hint-text">Tap to copy breakdown</span>
+        </div>
+        <span class="split-figure" id="out-split">$0.00</span>
+      </div>
+    </section>
+  </main>
 
   <script>
-    const billInput = document.getElementById('bill');
-    const stateSelect = document.getElementById('state');
-    const taxRateInput = document.getElementById('tax-rate');
-    const tipButtons = document.querySelectorAll('.tip-btn');
-    const customTipInput = document.getElementById('custom-tip');
-    const splitCountInput = document.getElementById('split-count');
+    const CITY_RATES = {
+      "san francisco": { tax: 8.625, fee: 5.0 },
+      "oakland":       { tax: 10.25, fee: 3.0 },
+      "berkeley":      { tax: 10.25, fee: 3.0 },
+      "mountain view": { tax: 9.125, fee: 0.0 },
+      "palo alto":     { tax: 9.125, fee: 0.0 },
+      "sunnyvale":     { tax: 9.125, fee: 0.0 },
+      "cupertino":     { tax: 9.125, fee: 0.0 },
+      "san jose":      { tax: 9.375, fee: 0.0 },
+      "santa clara":   { tax: 9.125, fee: 0.0 },
+      "campbell":      { tax: 9.375, fee: 0.0 },
+      "los gatos":     { tax: 9.125, fee: 0.0 },
+      "saratoga":      { tax: 9.125, fee: 0.0 },
+      "milpitas":      { tax: 9.375, fee: 0.0 },
+      "san mateo":     { tax: 9.375, fee: 0.0 },
+      "redwood city":  { tax: 9.625, fee: 0.0 },
+      "menlo park":    { tax: 9.375, fee: 0.0 },
+      "burlingame":    { tax: 9.625, fee: 0.0 },
+      "daly city":     { tax: 9.875, fee: 0.0 },
+      "los angeles":   { tax: 9.50,  fee: 3.0 },
+      "west hollywood":{ tax: 10.25, fee: 3.0 },
+      "santa monica":  { tax: 10.25, fee: 3.0 },
+      "san diego":     { tax: 7.75,  fee: 0.0 },
+      "seattle":       { tax: 10.35, fee: 0.0 },
+      "bellevue":      { tax: 10.20, fee: 0.0 },
+      "new york":      { tax: 8.875, fee: 0.0 },
+      "chicago":       { tax: 10.25, fee: 0.0 },
+      "las vegas":     { tax: 8.375, fee: 0.0 },
+      "sedona":        { tax: 9.85,  fee: 0.0 },
+      "phoenix":       { tax: 8.60,  fee: 0.0 },
+      "pittsburgh":    { tax: 7.00,  fee: 0.0 },
+      "austin":        { tax: 8.25,  fee: 0.0 }
+    };
 
-    const taxAmountDisplay = document.getElementById('tax-amount');
-    const tipAmountDisplay = document.getElementById('tip-amount');
-    const totalAmountDisplay = document.getElementById('total-amount');
-    const perPersonDisplay = document.getElementById('per-person');
+    const COUNTY_RATES = {
+      "santa clara county":   { tax: 9.125, fee: 0.0 },
+      "san francisco county": { tax: 8.625, fee: 5.0 },
+      "san mateo county":     { tax: 9.375, fee: 0.0 },
+      "alameda county":       { tax: 10.25, fee: 0.0 },
+      "contra costa county":  { tax: 9.25,  fee: 0.0 },
+      "marin county":         { tax: 8.75,  fee: 0.0 },
+      "los angeles county":   { tax: 9.50,  fee: 3.0 },
+      "orange county":        { tax: 7.75,  fee: 0.0 },
+      "san diego county":     { tax: 7.75,  fee: 0.0 },
+      "king county":          { tax: 10.25, fee: 0.0 },
+      "maricopa county":      { tax: 8.60,  fee: 0.0 },
+      "coconino county":      { tax: 9.85,  fee: 0.0 },
+      "yavapai county":       { tax: 9.85,  fee: 0.0 },
+      "clark county":         { tax: 8.375, fee: 0.0 }
+    };
 
-    let currentTipPercent = 18;
+    const STATE_RATES = {
+      "Alabama": 9.29, "Alaska": 1.82, "Arizona": 8.40, "Arkansas": 9.45,
+      "California": 8.85, "Colorado": 7.81, "Connecticut": 6.35, "Delaware": 0.00,
+      "Florida": 7.00, "Georgia": 7.38, "Hawaii": 4.50, "Idaho": 6.03,
+      "Illinois": 8.85, "Indiana": 7.00, "Iowa": 6.94, "Kansas": 8.65,
+      "Kentucky": 6.00, "Louisiana": 9.56, "Maine": 5.50, "Maryland": 6.00,
+      "Massachusetts": 6.25, "Michigan": 6.00, "Minnesota": 8.04, "Mississippi": 7.06,
+      "Missouri": 8.39, "Montana": 0.00, "Nebraska": 6.97, "Nevada": 8.24,
+      "New Hampshire": 0.00, "New Jersey": 6.60, "New Mexico": 7.62, "New York": 8.53,
+      "North Carolina": 7.00, "North Dakota": 7.04, "Ohio": 7.24, "Oklahoma": 8.99,
+      "Oregon": 0.00, "Pennsylvania": 6.34, "Rhode Island": 7.00, "South Carolina": 7.50,
+      "South Dakota": 6.11, "Tennessee": 9.55, "Texas": 8.20, "Utah": 7.25,
+      "Vermont": 6.36, "Virginia": 5.77, "Washington": 9.38, "West Virginia": 6.57,
+      "Wisconsin": 5.70, "Wyoming": 5.44, "District of Columbia": 6.00
+    };
 
-    // Auto-update tax rate when selecting state
-    stateSelect.addEventListener('change', () => {
-      const selectedRate = stateSelect.value;
-      taxRateInput.value = selectedRate;
-      calculate();
+    const STORAGE_KEY = 'tip_calc_loc_v2';
+
+    const billEl = document.getElementById('bill-input');
+    const clearBillBtn = document.getElementById('clear-bill');
+    const heroCaption = document.getElementById('hero-caption');
+    const modeAfterBtn = document.getElementById('mode-after');
+    const modePreBtn = document.getElementById('mode-pre');
+    const taxRateEl = document.getElementById('tax-rate');
+    const feeRateEl = document.getElementById('fee-rate');
+    const splitEl = document.getElementById('split-count');
+    const splitMinus = document.getElementById('split-minus');
+    const splitPlus = document.getElementById('split-plus');
+    const tipBtns = document.querySelectorAll('.tip-pill');
+    const customTipWrap = document.getElementById('custom-tip-wrap');
+    const customTipEl = document.getElementById('custom-tip');
+    const activeTipLabel = document.getElementById('active-tip-label');
+
+    const locDot = document.getElementById('loc-dot');
+    const locText = document.getElementById('loc-text');
+    const refreshLocBtn = document.getElementById('refresh-loc');
+
+    const outSubtotal = document.getElementById('out-subtotal');
+    const outFeeLabel = document.getElementById('out-fee-label');
+    const outFee = document.getElementById('out-fee');
+    const outTaxLabel = document.getElementById('out-tax-label');
+    const outTax = document.getElementById('out-tax');
+    const outTip = document.getElementById('out-tip');
+    const outGrand = document.getElementById('out-grand');
+    const outSplit = document.getElementById('out-split');
+    const perPersonLabel = document.getElementById('per-person-label');
+    const copySplitBox = document.getElementById('copy-split-box');
+    const copyHintText = document.getElementById('copy-hint-text');
+
+    let isPreTaxMode = false;
+    let tipPercent = 18;
+    let isCustomTip = false;
+    let latestState = {
+      preTax: 0,
+      feeAmount: 0,
+      taxAmount: 0,
+      tipAmount: 0,
+      grandTotal: 0,
+      perPerson: 0,
+      k: 1,
+      effectiveTip: 18
+    };
+
+    function haptic(ms = 8) {
+      if (navigator.vibrate) navigator.vibrate(ms);
+    }
+
+    function compute() {
+      const rawBill = Math.max(0, parseFloat(billEl.value) || 0);
+      clearBillBtn.classList.toggle('visible', billEl.value.length > 0);
+
+      const taxRate = Math.max(0, parseFloat(taxRateEl.value) || 0);
+      const feeRate = Math.max(0, parseFloat(feeRateEl.value) || 0);
+      const k = Math.max(1, parseInt(splitEl.value, 10) || 1);
+
+      const effectiveTip = isCustomTip
+        ? Math.max(0, parseFloat(customTipEl.value) || 0)
+        : tipPercent;
+
+      activeTipLabel.textContent = `${effectiveTip}%`;
+
+      let preTax = 0;
+      let feeAmount = 0;
+      let taxAmount = 0;
+      let afterTaxTotal = 0;
+
+      if (isPreTaxMode) {
+        preTax = rawBill;
+        feeAmount = preTax * (feeRate / 100);
+        taxAmount = preTax * (taxRate / 100);
+        afterTaxTotal = preTax + feeAmount + taxAmount;
+      } else {
+        const combinedMultiplier = 1 + (taxRate + feeRate) / 100;
+        preTax = rawBill / combinedMultiplier;
+        feeAmount = preTax * (feeRate / 100);
+        taxAmount = rawBill - preTax - feeAmount;
+        afterTaxTotal = rawBill;
+      }
+
+      // Update live dollar previews inside each tip pill
+      [20, 18, 15, 12].forEach(pct => {
+        const el = document.getElementById(`preview-${pct}`);
+        if (el) {
+          const val = preTax * (pct / 100);
+          el.textContent = val > 0 ? `$${val.toFixed(val >= 100 ? 0 : 2)}` : '$0';
+        }
+      });
+
+      const customPreviewEl = document.getElementById('preview-custom');
+      if (isCustomTip && preTax > 0) {
+        const cVal = preTax * (effectiveTip / 100);
+        customPreviewEl.textContent = `$${cVal.toFixed(cVal >= 100 ? 0 : 2)}`;
+      } else {
+        customPreviewEl.textContent = isCustomTip ? `${effectiveTip}%` : '%';
+      }
+
+      const tipAmount = preTax * (effectiveTip / 100);
+      const grandTotal = afterTaxTotal + tipAmount;
+      const perPerson = grandTotal / k;
+
+      latestState = { preTax, feeAmount, taxAmount, tipAmount, grandTotal, perPerson, k, effectiveTip };
+
+      outSubtotal.textContent = `$${preTax.toFixed(2)}`;
+      outFeeLabel.textContent = `${isPreTaxMode ? 'Mandate (+)' : 'Deducted Mandate'} (${feeRate}%)`;
+      outFee.textContent = `$${feeAmount.toFixed(2)}`;
+      outTaxLabel.textContent = `${isPreTaxMode ? 'Sales Tax (+)' : 'Deducted Tax'} (${taxRate}%)`;
+      outTax.textContent = `$${taxAmount.toFixed(2)}`;
+      outTip.textContent = `$${tipAmount.toFixed(2)}`;
+      outGrand.textContent = `$${grandTotal.toFixed(2)}`;
+      outSplit.textContent = `$${perPerson.toFixed(2)}`;
+      perPersonLabel.textContent = k > 1 ? `Per Person (${k} ways)` : `Your Total`;
+    }
+
+    function setBillMode(preTax) {
+      haptic();
+      isPreTaxMode = preTax;
+      modeAfterBtn.classList.toggle('active', !preTax);
+      modePreBtn.classList.toggle('active', preTax);
+      heroCaption.textContent = preTax ? 'Pre-Tax Food & Drink Subtotal' : 'After-Tax Receipt Total';
+      compute();
+    }
+
+    modeAfterBtn.addEventListener('click', () => setBillMode(false));
+    modePreBtn.addEventListener('click', () => setBillMode(true));
+
+    clearBillBtn.addEventListener('click', () => {
+      haptic();
+      billEl.value = '';
+      compute();
+      billEl.focus();
     });
 
-    // Preset / Custom tip button handlers
-    tipButtons.forEach(btn => {
+    [billEl, taxRateEl, feeRateEl, splitEl, customTipEl].forEach(el => {
+      el.addEventListener('focus', () => el.select());
+      el.addEventListener('input', compute);
+    });
+
+    tipBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        tipButtons.forEach(b => b.classList.remove('active'));
+        haptic();
+        tipBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const value = btn.getAttribute('data-percent');
-        if (value === 'custom') {
-          customTipInput.style.display = 'block';
-          currentTipPercent = parseFloat(customTipInput.value) || 0;
-          customTipInput.focus();
+        const val = btn.dataset.tip;
+        if (val === 'custom') {
+          isCustomTip = true;
+          customTipWrap.classList.add('visible');
+          customTipEl.focus();
         } else {
-          customTipInput.style.display = 'none';
-          currentTipPercent = parseFloat(value);
+          isCustomTip = false;
+          customTipWrap.classList.remove('visible');
+          tipPercent = parseFloat(val);
         }
-        calculate();
+        compute();
       });
     });
 
-    // Real-time recalculation triggers
-    billInput.addEventListener('input', calculate);
-    taxRateInput.addEventListener('input', calculate);
-    customTipInput.addEventListener('input', () => {
-      currentTipPercent = parseFloat(customTipInput.value) || 0;
-      calculate();
+    splitMinus.addEventListener('click', () => {
+      haptic();
+      const current = parseInt(splitEl.value, 10) || 1;
+      if (current > 1) {
+        splitEl.value = current - 1;
+        compute();
+      }
     });
-    splitCountInput.addEventListener('input', calculate);
 
-    function calculate() {
-      const bill = parseFloat(billInput.value) || 0;
-      const taxRate = parseFloat(taxRateInput.value) || 0;
-      const splitCount = Math.max(1, parseInt(splitCountInput.value, 10) || 1);
+    splitPlus.addEventListener('click', () => {
+      haptic();
+      const current = parseInt(splitEl.value, 10) || 1;
+      splitEl.value = current + 1;
+      compute();
+    });
 
-      const tax = bill * (taxRate / 100);
-      const tip = bill * (currentTipPercent / 100);
-      const total = bill + tax + tip;
-      const perPerson = total / splitCount;
+    copySplitBox.addEventListener('click', async () => {
+      haptic(12);
+      const { preTax, feeAmount, taxAmount, tipAmount, grandTotal, perPerson, k, effectiveTip } = latestState;
+      const splitPhrase = k > 1 ? `(${k} ways): $${perPerson.toFixed(2)}/person` : `Total: $${grandTotal.toFixed(2)}`;
+      const feePart = feeAmount > 0 ? ` + $${feeAmount.toFixed(2)} fee` : '';
+      const summary = `Bill Split ${splitPhrase} — $${preTax.toFixed(2)} pre-tax + $${taxAmount.toFixed(2)} tax${feePart} + $${tipAmount.toFixed(2)} tip (${effectiveTip}%) = $${grandTotal.toFixed(2)}`;
 
-      taxAmountDisplay.textContent = `$${tax.toFixed(2)}`;
-      tipAmountDisplay.textContent = `$${tip.toFixed(2)}`;
-      totalAmountDisplay.textContent = `$${total.toFixed(2)}`;
-      perPersonDisplay.textContent = `$${perPerson.toFixed(2)}`;
+      try {
+        await navigator.clipboard.writeText(summary);
+        copySplitBox.classList.add('copied');
+        copyHintText.textContent = '✓ Copied to clipboard';
+        setTimeout(() => {
+          copySplitBox.classList.remove('copied');
+          copyHintText.textContent = 'Tap to copy breakdown';
+        }, 1800);
+      } catch (e) {
+        copyHintText.textContent = summary;
+      }
+    });
+
+    function loadCachedLocation() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const cached = JSON.parse(raw);
+        if (cached && typeof cached.tax === 'number') {
+          taxRateEl.value = cached.tax;
+          feeRateEl.value = cached.fee || 0;
+          const feeTag = cached.fee > 0 ? ` + ${cached.fee}%` : '';
+          locText.textContent = `${cached.label} (${cached.tax}%${feeTag})`;
+          locDot.classList.add('active');
+          compute();
+        }
+      } catch (e) {}
     }
 
-    calculate();
+    async function autoDetectLocation() {
+      if (!navigator.geolocation) {
+        locText.textContent = 'Manual Rate';
+        return;
+      }
+
+      if (!locDot.classList.contains('active')) {
+        locText.textContent = 'Locating...';
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const { latitude, longitude } = pos.coords;
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+            );
+            const data = await res.json();
+            const addr = data.address || {};
+
+            const rawCity = addr.city || addr.town || addr.village || addr.municipality || addr.suburb || '';
+            const cityKey = rawCity.toLowerCase().trim();
+            const rawCounty = addr.county || '';
+            const countyKey = rawCounty.toLowerCase().trim();
+            const stateName = addr.state || '';
+
+            let tax = null;
+            let fee = 0;
+            let label = '';
+
+            if (cityKey && CITY_RATES[cityKey] !== undefined) {
+              tax = CITY_RATES[cityKey].tax;
+              fee = CITY_RATES[cityKey].fee;
+              label = rawCity;
+            } else if (countyKey && COUNTY_RATES[countyKey] !== undefined) {
+              tax = COUNTY_RATES[countyKey].tax;
+              fee = COUNTY_RATES[countyKey].fee;
+              label = rawCity || rawCounty.replace(/ County$/i, '');
+            } else if (stateName && STATE_RATES[stateName] !== undefined) {
+              tax = STATE_RATES[stateName];
+              fee = 0;
+              label = rawCity || stateName;
+            }
+
+            if (tax !== null) {
+              taxRateEl.value = tax;
+              feeRateEl.value = fee;
+              locDot.classList.add('active');
+              const feeTag = fee > 0 ? ` + ${fee}%` : '';
+              locText.textContent = `${label} (${tax}%${feeTag})`;
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ label, tax, fee }));
+              compute();
+            }
+          } catch (e) {
+            if (!locDot.classList.contains('active')) {
+              locText.textContent = 'Offline / Cached';
+            }
+          }
+        },
+        () => {
+          if (!locDot.classList.contains('active')) {
+            locText.textContent = 'Default (9.13%)';
+          }
+        },
+        { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 }
+      );
+    }
+
+    refreshLocBtn.addEventListener('click', () => {
+      haptic();
+      locDot.classList.remove('active');
+      autoDetectLocation();
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCachedLocation();
+      compute();
+      autoDetectLocation();
+    });
   </script>
 </body>
 </html>
