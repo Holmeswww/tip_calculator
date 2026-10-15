@@ -1,60 +1,293 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f4f1eb">
-  <meta name="description" content="A simple tip calculator that estimates local sales tax from your location.">
-  <title>Good Measure — Tip calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tip & Split Calculator</title>
   <style>
-    :root{--ink:#19241f;--muted:#6d7972;--line:#e4e8e1;--paper:#fffefa;--bg:#f4f1eb;--green:#235d49;--green2:#dcebe2;--orange:#f3a979;--shadow:0 24px 70px rgba(30,46,38,.09)}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
-    .shell{max-width:1120px;margin:auto;padding:30px 28px 46px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:54px}.brand{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:750;letter-spacing:.02em}.brand-mark{width:34px;height:34px;background:var(--green);border-radius:12px;display:grid;place-items:center;color:white;font-size:18px}.top-note{font-size:12px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
-    .layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}.intro{padding:0 0 10px}.eyebrow{display:flex;align-items:center;gap:9px;color:var(--green);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}.eyebrow:before{content:"";height:1px;width:26px;background:var(--green)}h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(50px,6.6vw,82px);line-height:.98;letter-spacing:-.055em;font-weight:500;margin:23px 0 22px;max-width:520px}.intro p{font-size:17px;line-height:1.65;color:#66716a;max-width:400px;margin:0}.small-tag{display:inline-flex;align-items:center;gap:8px;margin-top:33px;padding:9px 13px;border:1px solid #dce1da;border-radius:999px;color:#607067;font-size:12px}.dot{width:7px;height:7px;border-radius:50%;background:#4f9a70}
-    .calculator{background:var(--paper);border:1px solid rgba(35,60,45,.08);border-radius:24px;box-shadow:var(--shadow);padding:30px;max-width:490px;width:100%;justify-self:end}.card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:27px}.card-head h2{font-size:17px;margin:0;font-weight:720}.card-head p{font-size:12px;color:var(--muted);margin:5px 0 0}.reset{border:0;background:transparent;color:#7a847d;font:inherit;font-size:12px;cursor:pointer;padding:5px}.field-label{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;margin-bottom:9px}.field-label span{color:#909992;font-weight:500}.money-field{height:58px;border:1px solid var(--line);border-radius:13px;display:flex;align-items:center;padding:0 15px;transition:.15s}.money-field:focus-within{border-color:#76a18a;box-shadow:0 0 0 3px rgba(35,93,73,.08)}.currency{font-size:20px;color:#829087;margin-right:9px}.money-field input{border:0;outline:0;width:100%;font:600 20px ui-sans-serif,system-ui;background:transparent;color:var(--ink)}
-    .tax-row{margin:23px 0 27px}.tax-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.tax-title{font-size:12px;font-weight:700}.tax-status{font-size:11px;color:var(--muted)}.tax-controls{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.tax-field{height:46px;border:1px solid var(--line);border-radius:11px;display:flex;align-items:center;padding:0 13px;max-width:145px}.tax-field input{width:100%;border:0;outline:0;background:transparent;font:600 15px ui-sans-serif,system-ui;color:var(--ink)}.tax-field b{font-size:13px;color:#7a857e}.location-btn{display:flex;align-items:center;gap:7px;justify-content:center;height:43px;padding:0 12px;border:1px solid #d6e3da;border-radius:10px;background:#f6faf6;color:var(--green);font:650 12px ui-sans-serif,system-ui;cursor:pointer;white-space:nowrap}.location-btn:hover{background:var(--green2)}.location-note{font-size:11px;line-height:1.45;color:#8a938d;margin:8px 0 0}.tip-label{font-size:12px;font-weight:700;margin-bottom:11px}.tips{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.tip-btn{height:42px;border:1px solid var(--line);background:#fff;border-radius:10px;color:#56625a;font:650 13px ui-sans-serif,system-ui;cursor:pointer;transition:.15s}.tip-btn:hover{border-color:#a8c4b1}.tip-btn.active{background:var(--green);border-color:var(--green);color:white}.divider{height:1px;background:var(--line);margin:24px 0 19px}.result-label{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#707b73}.result-label strong{font-size:11px;color:#8d968f;font-weight:550}.total{display:flex;align-items:baseline;justify-content:space-between;margin-top:5px}.total small{font-size:13px;color:#68746c}.total output{font-size:38px;letter-spacing:-.05em;font-weight:750;color:var(--green)}.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:19px}.breakdown-item{padding:12px 13px;background:#f7f8f4;border-radius:11px}.breakdown-item span{display:block;font-size:10px;color:#89928c;margin-bottom:5px}.breakdown-item b{font-size:14px}.footnote{font-size:10px;color:#9ba39d;text-align:center;margin:20px 0 0}
-    @media(max-width:820px){.layout{gap:38px}.shell{padding:24px 22px 40px}.topbar{margin-bottom:38px}.calculator{padding:24px}.intro p{font-size:15px}}@media(max-width:650px){.shell{padding:20px 16px 32px}.topbar{margin-bottom:31px}.top-note{font-size:10px}.layout{grid-template-columns:1fr;gap:29px}.intro{padding:0}.intro h1{font-size:58px;margin:17px 0}.intro p{max-width:440px}.small-tag{margin-top:20px}.calculator{justify-self:stretch;max-width:none;padding:23px 20px}.breakdown{gap:8px}}@media(max-width:380px){.tax-controls{grid-template-columns:1fr}.location-btn{justify-self:start}.tips{gap:5px}.tip-btn{font-size:12px}}
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .calculator {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .tip-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tip-btn {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tip-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0f172a;
+    }
+
+    .results {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-row.total {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border);
+    }
+
+    .split-highlight {
+      background: #0f172a;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .split-highlight .amount {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-top: 0.2rem;
+    }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <header class="topbar"><div class="brand"><div class="brand-mark" aria-hidden="true">↗</div> GOOD MEASURE</div><div class="top-note">The easy end to dinner</div></header>
-    <section class="layout" aria-label="Tip calculator">
-      <div class="intro"><div class="eyebrow">A little math, handled</div><h1>Leave well.<br>Tip right.</h1><p>Enter the bill, find the local tax, and see exactly what to leave. Dinner deserves a graceful ending.</p><div class="small-tag"><span class="dot"></span> Your bill stays on your device</div></div>
-      <section class="calculator" aria-labelledby="calc-title">
-        <div class="card-head"><div><h2 id="calc-title">Your check</h2><p>We’ll remove tax before calculating your tip.</p></div><button class="reset" id="reset" type="button">Reset ↺</button></div>
-        <label class="field-label" for="bill">Bill total <span>including tax</span></label>
-        <div class="money-field"><span class="currency" aria-hidden="true">$</span><input id="bill" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" autocomplete="off" aria-label="Bill total including tax"></div>
-        <div class="tax-row"><div class="tax-head"><label class="tax-title" for="tax">Local sales tax</label><span class="tax-status" id="taxStatus">Enter a rate or use location</span></div><div class="tax-controls"><div class="tax-field"><input id="tax" type="number" inputmode="decimal" min="0" max="30" step="0.01" value="0" aria-label="Sales tax percentage"><b>%</b></div><button class="location-btn" id="locate" type="button"><span aria-hidden="true">⌖</span> Use my location</button></div><p class="location-note" id="locationNote">Location is only used to estimate tax. You can adjust the rate any time.</p></div>
-        <div class="tip-label">Choose your tip</div><div class="tips" role="group" aria-label="Tip percentage"><button class="tip-btn" data-tip="10" type="button">10%</button><button class="tip-btn" data-tip="12" type="button">12%</button><button class="tip-btn active" data-tip="15" type="button" aria-pressed="true">15%</button><button class="tip-btn" data-tip="18" type="button">18%</button><button class="tip-btn" data-tip="20" type="button">20%</button></div>
-        <div class="divider"></div><div class="result-label"><span>Total to leave</span><strong id="selectedTip">15% tip</strong></div><div class="total"><small>Bill + tip</small><output id="grandTotal" aria-live="polite">$0.00</output></div>
-        <div class="breakdown"><div class="breakdown-item"><span>Tip on pre-tax bill</span><b id="tipAmount">$0.00</b></div><div class="breakdown-item"><span>Bill before tip</span><b id="preTax">$0.00</b></div></div>
-        <p class="footnote">Tax rates are estimates. Check your receipt for the exact rate.</p>
-      </section>
-    </section>
-  </main>
+
+  <div class="calculator">
+    <div class="form-group">
+      <label for="bill">Bill Subtotal ($)</label>
+      <input type="number" id="bill" placeholder="0.00" min="0" step="0.01" />
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label for="state">Location / State</label>
+        <select id="state">
+          <option value="0">Select state...</option>
+          <option value="4.00">AL (4.00%)</option>
+          <option value="0.00">AK (0.00%)</option>
+          <option value="5.60">AZ (5.60%)</option>
+          <option value="7.25" selected>CA (7.25%)</option>
+          <option value="2.90">CO (2.90%)</option>
+          <option value="6.35">CT (6.35%)</option>
+          <option value="0.00">DE (0.00%)</option>
+          <option value="6.00">FL (6.00%)</option>
+          <option value="4.00">GA (4.00%)</option>
+          <option value="4.00">HI (4.00%)</option>
+          <option value="6.25">IL (6.25%)</option>
+          <option value="6.00">MD (6.00%)</option>
+          <option value="6.25">MA (6.25%)</option>
+          <option value="6.00">MI (6.00%)</option>
+          <option value="7.00">NJ (7.00%)</option>
+          <option value="4.00">NY (4.00%)</option>
+          <option value="0.00">OR (0.00%)</option>
+          <option value="6.00">PA (6.00%)</option>
+          <option value="6.25">TX (6.25%)</option>
+          <option value="6.50">WA (6.50%)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tax-rate">Tax Rate (%)</label>
+        <input type="number" id="tax-rate" value="7.25" min="0" step="0.01" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Tip Percentage</label>
+      <div class="tip-buttons">
+        <button type="button" class="tip-btn" data-percent="15">15%</button>
+        <button type="button" class="tip-btn active" data-percent="18">18%</button>
+        <button type="button" class="tip-btn" data-percent="20">20%</button>
+        <button type="button" class="tip-btn" data-percent="custom">Custom</button>
+      </div>
+      <input type="number" id="custom-tip" placeholder="Custom Tip %" min="0" step="0.1" style="display: none;" />
+    </div>
+
+    <div class="form-group">
+      <label for="split-count">Split Between (People)</label>
+      <input type="number" id="split-count" value="1" min="1" step="1" />
+    </div>
+
+    <div class="results">
+      <div class="summary-row">
+        <span>Tax Amount:</span>
+        <span id="tax-amount">$0.00</span>
+      </div>
+      <div class="summary-row">
+        <span>Tip Amount:</span>
+        <span id="tip-amount">$0.00</span>
+      </div>
+      <div class="summary-row total">
+        <span>Grand Total:</span>
+        <span id="total-amount">$0.00</span>
+      </div>
+
+      <div class="split-highlight">
+        <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Amount Per Person</span>
+        <div class="amount" id="per-person">$0.00</div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const billEl=document.querySelector('#bill'), taxEl=document.querySelector('#tax'), totalEl=document.querySelector('#grandTotal'), tipAmountEl=document.querySelector('#tipAmount'), preTaxEl=document.querySelector('#preTax'), selectedEl=document.querySelector('#selectedTip'), statusEl=document.querySelector('#taxStatus'), noteEl=document.querySelector('#locationNote');
-    let tipRate=15;
-    const money=n=>new Intl.NumberFormat(undefined,{style:'currency',currency:'USD'}).format(Number.isFinite(n)?n:0);
-    function calculate(){const bill=Math.max(0,Number(billEl.value)||0),tax=Math.max(0,Number(taxEl.value)||0),beforeTax=bill/(1+tax/100),tip=beforeTax*tipRate/100;preTaxEl.textContent=money(beforeTax);tipAmountEl.textContent=money(tip);totalEl.textContent=money(bill+tip);selectedEl.textContent=`${tipRate}% tip`;}
-    document.querySelectorAll('.tip-btn').forEach(btn=>btn.addEventListener('click',()=>{tipRate=Number(btn.dataset.tip);document.querySelectorAll('.tip-btn').forEach(b=>{const active=b===btn;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});calculate();}));
-    billEl.addEventListener('input',calculate);taxEl.addEventListener('input',()=>{statusEl.textContent='Manual rate';noteEl.textContent='You can edit this rate to match your receipt.';calculate();});
-    document.querySelector('#reset').addEventListener('click',()=>{billEl.value='';taxEl.value='0';statusEl.textContent='Enter a rate or use location';noteEl.textContent='Location is only used to estimate tax. You can adjust the rate any time.';calculate();billEl.focus();});
-    document.querySelector('#locate').addEventListener('click',()=>{
-      if(!('geolocation'in navigator)){statusEl.textContent='Location unavailable';noteEl.textContent='Your browser does not support location. Enter the tax rate from your receipt.';return;}
-      statusEl.textContent='Finding your area…';noteEl.textContent='Your browser will ask for location permission. Coordinates are used only to find a nearby tax estimate.';
-      navigator.geolocation.getCurrentPosition(async ({coords})=>{
-        try{const url=`https://api.opencagedata.com/geocode/v1/json?q=${coords.latitude}+${coords.longitude}&key=FREE&no_annotations=1`;throw new Error('No embedded key');
-        }catch(_){
-          // Nominatim provides reverse geocoding; a regional default helps visitors without a configured tax API.
-          try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.latitude}&lon=${coords.longitude}`);const data=await r.json();const a=data.address||{};const region=a.state||a.province||a.region||'';const country=(a.country_code||'').toUpperCase();const presets={'CA':7.25,'NY':8.0,'TX':8.0,'FL':7.0,'WA':8.0,'IL':8.0,'MA':6.25,'PA':6.0,'NV':8.0,'AZ':8.0,'OR':0,'NH':0,'DE':0,'MT':0};
-            if(country==='US'&&region){const key=region.replace(/^State of /,'').toUpperCase();const rate=presets[key]??8.0;taxEl.value=rate.toFixed(2);statusEl.textContent=`Estimated · ${region}`;noteEl.textContent=`Using a rough ${rate}% ${region} estimate. Local rates vary by city and county; check your receipt for the exact rate.`;}else{statusEl.textContent='Area found';noteEl.textContent=`${a.city||a.town||a.village||region||data.display_name||'Location found'}. Enter the sales tax from your receipt for an accurate total.`;}
-            calculate();
-          }catch(e){statusEl.textContent='Could not estimate tax';noteEl.textContent='Enter the sales tax shown on your receipt. Your location was not saved.';}
+    const billInput = document.getElementById('bill');
+    const stateSelect = document.getElementById('state');
+    const taxRateInput = document.getElementById('tax-rate');
+    const tipButtons = document.querySelectorAll('.tip-btn');
+    const customTipInput = document.getElementById('custom-tip');
+    const splitCountInput = document.getElementById('split-count');
+
+    const taxAmountDisplay = document.getElementById('tax-amount');
+    const tipAmountDisplay = document.getElementById('tip-amount');
+    const totalAmountDisplay = document.getElementById('total-amount');
+    const perPersonDisplay = document.getElementById('per-person');
+
+    let currentTipPercent = 18;
+
+    // Auto-update tax rate when selecting state
+    stateSelect.addEventListener('change', () => {
+      const selectedRate = stateSelect.value;
+      taxRateInput.value = selectedRate;
+      calculate();
+    });
+
+    // Preset / Custom tip button handlers
+    tipButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tipButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const value = btn.getAttribute('data-percent');
+        if (value === 'custom') {
+          customTipInput.style.display = 'block';
+          currentTipPercent = parseFloat(customTipInput.value) || 0;
+          customTipInput.focus();
+        } else {
+          customTipInput.style.display = 'none';
+          currentTipPercent = parseFloat(value);
         }
-      },err=>{statusEl.textContent='Location not shared';noteEl.textContent='Enter the tax rate shown on your receipt, or try location again.';},{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
-    });calculate();
+        calculate();
+      });
+    });
+
+    // Real-time recalculation triggers
+    billInput.addEventListener('input', calculate);
+    taxRateInput.addEventListener('input', calculate);
+    customTipInput.addEventListener('input', () => {
+      currentTipPercent = parseFloat(customTipInput.value) || 0;
+      calculate();
+    });
+    splitCountInput.addEventListener('input', calculate);
+
+    function calculate() {
+      const bill = parseFloat(billInput.value) || 0;
+      const taxRate = parseFloat(taxRateInput.value) || 0;
+      const splitCount = Math.max(1, parseInt(splitCountInput.value, 10) || 1);
+
+      const tax = bill * (taxRate / 100);
+      const tip = bill * (currentTipPercent / 100);
+      const total = bill + tax + tip;
+      const perPerson = total / splitCount;
+
+      taxAmountDisplay.textContent = `$${tax.toFixed(2)}`;
+      tipAmountDisplay.textContent = `$${tip.toFixed(2)}`;
+      totalAmountDisplay.textContent = `$${total.toFixed(2)}`;
+      perPersonDisplay.textContent = `$${perPerson.toFixed(2)}`;
+    }
+
+    calculate();
   </script>
 </body>
 </html>
