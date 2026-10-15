@@ -17,16 +17,17 @@
       --surface: #1c1c21;
       --surface-hover: #26262c;
       --border: rgba(255, 255, 255, 0.07);
-      --border-strong: rgba(255, 255, 255, 0.13);
+      --border-strong: rgba(255, 255, 255, 0.14);
       --text: #fafafa;
       --text-muted: #a1a1aa;
       --text-dim: #52525b;
       --accent: #10b981;
       --accent-soft: rgba(16, 185, 129, 0.14);
       --accent-glow: rgba(16, 185, 129, 0.35);
-      --radius-xl: 28px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
+      --radius-xl: clamp(20px, 4vw, 28px);
+      --radius-lg: clamp(14px, 3vw, 18px);
+      --radius-md: clamp(10px, 2.2vw, 14px);
+      --gap: clamp(10px, 2vh, 16px);
     }
 
     * {
@@ -39,21 +40,40 @@
 
     body {
       background-color: var(--bg);
-      background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 55%);
+      background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
       color: var(--text);
       min-height: 100dvh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+      align-items: center;
+      padding:
+        max(12px, env(safe-area-inset-top))
+        max(14px, env(safe-area-inset-right))
+        max(16px, env(safe-area-inset-bottom))
+        max(14px, env(safe-area-inset-left));
     }
 
     .app {
       width: 100%;
-      max-width: 410px;
+      max-width: 430px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: var(--gap);
+      margin: auto;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--gap);
+      align-items: stretch;
+    }
+
+    .pane {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      min-width: 0;
     }
 
     /* Top Bar: Segmented Mode Switch + Location Badge */
@@ -62,31 +82,29 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .seg-control {
-      position: relative;
       display: inline-grid;
       grid-template-columns: 1fr 1fr;
       background: var(--surface);
       padding: 3px;
       border-radius: 999px;
       border: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
     .seg-btn {
-      position: relative;
-      z-index: 1;
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 0.74rem;
+      font-size: clamp(0.7rem, 2vw, 0.76rem);
       font-weight: 600;
       padding: 6px 13px;
       border-radius: 999px;
       cursor: pointer;
-      transition: color 0.2s ease, background 0.2s ease;
-      letter-spacing: 0.01em;
+      transition: color 0.18s ease, background 0.18s ease;
     }
 
     .seg-btn.active {
@@ -102,13 +120,14 @@
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 6px 11px;
+      padding: 6px 12px;
       border-radius: 999px;
-      font-size: 0.74rem;
+      font-size: clamp(0.7rem, 2vw, 0.76rem);
       font-weight: 500;
       cursor: pointer;
-      transition: border-color 0.2s ease, transform 0.1s ease;
-      max-width: 54%;
+      transition: transform 0.1s ease, border-color 0.2s ease;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .loc-badge:active {
@@ -140,10 +159,11 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
-      padding: 20px 20px 18px;
+      padding: clamp(14px, 2.8vh, 22px) 18px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       position: relative;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
       transition: border-color 0.2s ease;
@@ -154,12 +174,12 @@
     }
 
     .hero-caption {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .hero-input-row {
@@ -168,10 +188,11 @@
       justify-content: center;
       width: 100%;
       position: relative;
+      padding: 0 32px;
     }
 
     .hero-currency {
-      font-size: 2.1rem;
+      font-size: clamp(1.6rem, 4.5vw, 2.1rem);
       font-weight: 700;
       color: var(--text-muted);
       margin-right: 4px;
@@ -182,15 +203,21 @@
       background: transparent;
       border: none;
       color: var(--text);
-      font-size: 3.35rem;
+      font-size: clamp(2.4rem, 8vw, 3.35rem);
       font-weight: 800;
       letter-spacing: -0.03em;
-      width: 210px;
+      width: 100%;
+      max-width: 240px;
       text-align: center;
       outline: none;
       font-variant-numeric: tabular-nums;
       caret-color: var(--accent);
       -moz-appearance: textfield;
+      transition: font-size 0.12s ease;
+    }
+
+    #bill-input.compact-font {
+      font-size: clamp(1.85rem, 6vw, 2.5rem);
     }
 
     #bill-input::placeholder {
@@ -205,16 +232,16 @@
 
     .clear-btn {
       position: absolute;
-      right: 0;
+      right: 2px;
       top: 50%;
       transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       display: none;
       align-items: center;
       justify-content: center;
@@ -231,17 +258,18 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       display: grid;
-      grid-template-columns: 1fr 1fr 1.25fr;
+      grid-template-columns: 1fr 1fr 1.3fr;
       overflow: hidden;
     }
 
     .param-cell {
-      padding: 11px 12px;
+      padding: clamp(9px, 1.8vh, 13px) clamp(8px, 2vw, 13px);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 4px;
       position: relative;
+      min-width: 0;
     }
 
     .param-cell:not(:last-child)::after {
@@ -255,11 +283,12 @@
     }
 
     .param-label {
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-muted);
+      white-space: nowrap;
     }
 
     .param-value-wrap {
@@ -273,36 +302,36 @@
       background: transparent;
       border: none;
       color: var(--text);
-      font-size: 1.15rem;
+      font-size: clamp(1rem, 2.8vw, 1.15rem);
       font-weight: 700;
       outline: none;
       font-variant-numeric: tabular-nums;
       padding: 0;
       -moz-appearance: textfield;
+      min-width: 0;
     }
 
     .param-unit {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       color: var(--text-muted);
     }
 
-    /* Split Stepper Inside Strip */
     .split-controls {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 4px;
+      gap: 2px;
     }
 
     .step-btn {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 8px;
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
@@ -314,19 +343,19 @@
 
     .step-btn:active {
       background: var(--surface-hover);
-      transform: scale(0.94);
+      transform: scale(0.93);
     }
 
     #split-count {
       text-align: center;
-      width: 34px;
+      width: 32px;
     }
 
     /* Tip Selector Section */
     .tip-section {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
     }
 
     .section-header {
@@ -334,7 +363,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 0 4px;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -343,15 +372,15 @@
 
     .tip-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 7px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(5px, 1.4vw, 8px);
     }
 
     .tip-pill {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 10px 4px;
+      padding: clamp(8px, 1.6vh, 12px) 2px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -359,19 +388,24 @@
       gap: 3px;
       cursor: pointer;
       transition: all 0.16s ease;
+      min-width: 0;
     }
 
     .tip-pill .pct {
-      font-size: 0.92rem;
+      font-size: clamp(0.82rem, 2.3vw, 0.94rem);
       font-weight: 700;
       color: var(--text);
     }
 
     .tip-pill .amt {
-      font-size: 0.68rem;
+      font-size: clamp(0.62rem, 1.8vw, 0.7rem);
       font-weight: 500;
       color: var(--text-muted);
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .tip-pill.active {
@@ -403,7 +437,7 @@
     }
 
     .custom-drawer span {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-muted);
     }
@@ -415,7 +449,7 @@
     }
 
     #custom-tip {
-      width: 70px;
+      width: 72px;
       text-align: right;
       background: transparent;
       border: none;
@@ -430,25 +464,35 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
-      padding: 18px;
+      padding: clamp(14px, 2.5vh, 22px);
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       gap: 10px;
+      height: 100%;
       box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+    }
+
+    .receipt-rows {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(7px, 1.5vh, 12px);
     }
 
     .line-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.86rem;
+      font-size: clamp(0.82rem, 2.2vw, 0.9rem);
       color: var(--text-muted);
+      gap: 8px;
     }
 
     .line-item .val {
       color: var(--text);
       font-weight: 600;
       font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
     }
 
     .receipt-divider {
@@ -458,13 +502,13 @@
     }
 
     .line-item.grand {
-      font-size: 1rem;
+      font-size: clamp(0.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
       color: var(--text);
     }
 
     .line-item.grand .val {
-      font-size: 1.12rem;
+      font-size: clamp(1.08rem, 2.8vw, 1.2rem);
       font-weight: 800;
     }
 
@@ -474,10 +518,11 @@
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.07));
       border: 1px solid rgba(16, 185, 129, 0.35);
       border-radius: var(--radius-lg);
-      padding: 14px 16px;
+      padding: clamp(12px, 2vh, 16px) 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
       cursor: pointer;
       user-select: none;
       transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
@@ -496,10 +541,11 @@
       display: flex;
       flex-direction: column;
       gap: 3px;
+      min-width: 0;
     }
 
     .split-heading {
-      font-size: 0.92rem;
+      font-size: clamp(0.88rem, 2.3vw, 0.96rem);
       font-weight: 700;
       color: var(--text);
     }
@@ -508,17 +554,122 @@
       font-size: 0.72rem;
       font-weight: 500;
       color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .split-figure {
-      font-size: 1.75rem;
+      font-size: clamp(1.5rem, 4.5vw, 1.85rem);
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--accent);
       font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       RESPONSIVE BREAKPOINTS:
+       1. Compact Cover Screens (< 350px)
+       2. Unfolded Inner Foldable Screens / Tablets / Landscape (600px+)
+       3. Dual-Screen Hinge Segment Awareness
+       4. Short Vertical Height (e.g., virtual keyboard open)
+       ============================================================ */
+
+    /* 1. Narrow Outer Cover Screens */
+    @media (max-width: 350px) {
+      .tip-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .param-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+      .param-cell:nth-child(3) {
+        grid-column: span 2;
+        border-top: 1px solid var(--border);
+      }
+      .param-cell:nth-child(2)::after {
+        display: none;
+      }
+    }
+
+    /* 2. Foldable Inner Display (Unfolded ~600px–900px) & Tablets/Desktop */
+    @media (min-width: 600px) {
+      .app {
+        max-width: 840px;
+        gap: 18px;
+      }
+
+      .workspace {
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .hero-card {
+        flex: 1;
+        min-height: 132px;
+      }
+
+      #bill-input {
+        font-size: 3.1rem;
+      }
+
+      .param-input {
+        font-size: 1.12rem;
+      }
+
+      .tip-pill .pct {
+        font-size: 0.92rem;
+      }
+
+      .tip-pill .amt {
+        font-size: 0.68rem;
+      }
+
+      .line-item {
+        font-size: 0.9rem;
+      }
+
+      .split-figure {
+        font-size: 1.9rem;
+      }
+    }
+
+    /* 3. Foldable Hinge / Viewport Segment API Support */
+    @media (horizontal-viewport-segments: 2) {
+      .app {
+        max-width: 100%;
+      }
+      .workspace {
+        grid-template-columns: env(viewport-segment-width 0 0) env(viewport-segment-width 1 0);
+        column-gap: calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0) + 24px);
+      }
+    }
+
+    /* 4. Short Vertical Viewport (Phone Landscape or Soft Keyboard Open) */
+    @media (max-height: 560px) and (min-width: 520px) {
+      body {
+        align-items: flex-start;
+      }
+      .app {
+        max-width: 820px;
+        gap: 10px;
+      }
+      .workspace {
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 12px;
+      }
+      .hero-card {
+        padding: 10px 14px;
+        min-height: auto;
+      }
+      #bill-input {
+        font-size: 2.2rem;
+      }
+      .receipt-card {
+        padding: 12px 14px;
+      }
     }
   </style>
 </head>
@@ -526,7 +677,7 @@
 
   <main class="app">
     <!-- Top Bar: Segmented Switch + GPS Pill -->
-    <div class="top-bar">
+    <header class="top-bar">
       <div class="seg-control" role="group" aria-label="Bill input mode">
         <button type="button" class="seg-btn active" id="mode-after">After-Tax</button>
         <button type="button" class="seg-btn" id="mode-pre">Pre-Tax</button>
@@ -536,118 +687,125 @@
         <span class="loc-dot" id="loc-dot"></span>
         <span id="loc-text">Locating...</span>
       </button>
+    </header>
+
+    <!-- Adaptive 2-Pane Workspace -->
+    <div class="workspace">
+      <!-- Left Pane: Inputs & Controls -->
+      <div class="pane">
+        <section class="hero-card">
+          <div class="hero-caption" id="hero-caption">After-Tax Receipt Total</div>
+          <div class="hero-input-row">
+            <span class="hero-currency">$</span>
+            <input type="number" id="bill-input" placeholder="0.00" min="0" step="0.01" inputmode="decimal" autofocus />
+            <button type="button" class="clear-btn" id="clear-bill" aria-label="Clear amount">×</button>
+          </div>
+        </section>
+
+        <section class="param-strip">
+          <div class="param-cell">
+            <label class="param-label" for="tax-rate">Sales Tax</label>
+            <div class="param-value-wrap">
+              <input type="number" class="param-input" id="tax-rate" value="9.13" min="0" max="25" step="0.01" inputmode="decimal" />
+              <span class="param-unit">%</span>
+            </div>
+          </div>
+
+          <div class="param-cell">
+            <label class="param-label" for="fee-rate">Mandate</label>
+            <div class="param-value-wrap">
+              <input type="number" class="param-input" id="fee-rate" value="0.00" min="0" max="30" step="0.25" inputmode="decimal" />
+              <span class="param-unit">%</span>
+            </div>
+          </div>
+
+          <div class="param-cell">
+            <label class="param-label" for="split-count">Split ($k$)</label>
+            <div class="split-controls">
+              <button type="button" class="step-btn" id="split-minus" aria-label="Decrease split">−</button>
+              <input type="number" class="param-input" id="split-count" value="1" min="1" step="1" inputmode="numeric" />
+              <button type="button" class="step-btn" id="split-plus" aria-label="Increase split">+</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="tip-section">
+          <div class="section-header">
+            <span>Tip on Base Subtotal</span>
+            <span id="active-tip-label">18%</span>
+          </div>
+          <div class="tip-grid">
+            <button type="button" class="tip-pill" data-tip="20">
+              <span class="pct">20%</span>
+              <span class="amt" id="preview-20">$0</span>
+            </button>
+            <button type="button" class="tip-pill active" data-tip="18">
+              <span class="pct">18%</span>
+              <span class="amt" id="preview-18">$0</span>
+            </button>
+            <button type="button" class="tip-pill" data-tip="15">
+              <span class="pct">15%</span>
+              <span class="amt" id="preview-15">$0</span>
+            </button>
+            <button type="button" class="tip-pill" data-tip="12">
+              <span class="pct">12%</span>
+              <span class="amt" id="preview-12">$0</span>
+            </button>
+            <button type="button" class="tip-pill" data-tip="custom">
+              <span class="pct">Other</span>
+              <span class="amt" id="preview-custom">%</span>
+            </button>
+          </div>
+
+          <div class="custom-drawer" id="custom-tip-wrap">
+            <span>Custom Tip Percentage</span>
+            <div class="custom-input-wrap">
+              <input type="number" id="custom-tip" placeholder="0.0" min="0" max="100" step="0.5" inputmode="decimal" />
+              <span class="param-unit">%</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Pane: Live Receipt & One-Tap Split Banner -->
+      <div class="pane">
+        <section class="receipt-card">
+          <div class="receipt-rows">
+            <div class="line-item">
+              <span>Base Pre-Tax Subtotal</span>
+              <span class="val" id="out-subtotal">$0.00</span>
+            </div>
+            <div class="line-item" id="mandate-row">
+              <span id="out-fee-label">Mandate / Surcharge (0%)</span>
+              <span class="val" id="out-fee">$0.00</span>
+            </div>
+            <div class="line-item">
+              <span id="out-tax-label">Sales Tax (9.13%)</span>
+              <span class="val" id="out-tax">$0.00</span>
+            </div>
+            <div class="line-item">
+              <span>Tip Amount</span>
+              <span class="val" id="out-tip">$0.00</span>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="line-item grand">
+              <span>Grand Total</span>
+              <span class="val" id="out-grand">$0.00</span>
+            </div>
+          </div>
+
+          <div class="split-banner" id="copy-split-box" role="button" tabindex="0">
+            <div class="split-meta">
+              <span class="split-heading" id="per-person-label">Your Total</span>
+              <span class="split-sub" id="copy-hint-text">Tap to copy breakdown</span>
+            </div>
+            <span class="split-figure" id="out-split">$0.00</span>
+          </div>
+        </section>
+      </div>
     </div>
-
-    <!-- Hero Bill Display -->
-    <section class="hero-card">
-      <div class="hero-caption" id="hero-caption">After-Tax Receipt Total</div>
-      <div class="hero-input-row">
-        <span class="hero-currency">$</span>
-        <input type="number" id="bill-input" placeholder="0.00" min="0" step="0.01" inputmode="decimal" autofocus />
-        <button type="button" class="clear-btn" id="clear-bill" aria-label="Clear amount">×</button>
-      </div>
-    </section>
-
-    <!-- Unified 3-Cell Parameter Strip -->
-    <section class="param-strip">
-      <div class="param-cell">
-        <label class="param-label" for="tax-rate">Sales Tax</label>
-        <div class="param-value-wrap">
-          <input type="number" class="param-input" id="tax-rate" value="9.13" min="0" max="25" step="0.01" inputmode="decimal" />
-          <span class="param-unit">%</span>
-        </div>
-      </div>
-
-      <div class="param-cell">
-        <label class="param-label" for="fee-rate">Mandate</label>
-        <div class="param-value-wrap">
-          <input type="number" class="param-input" id="fee-rate" value="0.00" min="0" max="30" step="0.25" inputmode="decimal" />
-          <span class="param-unit">%</span>
-        </div>
-      </div>
-
-      <div class="param-cell">
-        <label class="param-label" for="split-count">Split</label>
-        <div class="split-controls">
-          <button type="button" class="step-btn" id="split-minus" aria-label="Decrease split">−</button>
-          <input type="number" class="param-input" id="split-count" value="1" min="1" step="1" inputmode="numeric" />
-          <button type="button" class="step-btn" id="split-plus" aria-label="Increase split">+</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tip Presets with Live Dollar Preview -->
-    <section class="tip-section">
-      <div class="section-header">
-        <span>Tip on Base Subtotal</span>
-        <span id="active-tip-label">18%</span>
-      </div>
-      <div class="tip-grid">
-        <button type="button" class="tip-pill" data-tip="20">
-          <span class="pct">20%</span>
-          <span class="amt" id="preview-20">$0</span>
-        </button>
-        <button type="button" class="tip-pill active" data-tip="18">
-          <span class="pct">18%</span>
-          <span class="amt" id="preview-18">$0</span>
-        </button>
-        <button type="button" class="tip-pill" data-tip="15">
-          <span class="pct">15%</span>
-          <span class="amt" id="preview-15">$0</span>
-        </button>
-        <button type="button" class="tip-pill" data-tip="12">
-          <span class="pct">12%</span>
-          <span class="amt" id="preview-12">$0</span>
-        </button>
-        <button type="button" class="tip-pill" data-tip="custom">
-          <span class="pct">Other</span>
-          <span class="amt" id="preview-custom">%</span>
-        </button>
-      </div>
-
-      <div class="custom-drawer" id="custom-tip-wrap">
-        <span>Custom Tip Percentage</span>
-        <div class="custom-input-wrap">
-          <input type="number" id="custom-tip" placeholder="0.0" min="0" max="100" step="0.5" inputmode="decimal" />
-          <span class="param-unit">%</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Receipt Breakdown & Copy Banner -->
-    <section class="receipt-card">
-      <div class="line-item">
-        <span>Base Pre-Tax Subtotal</span>
-        <span class="val" id="out-subtotal">$0.00</span>
-      </div>
-      <div class="line-item" id="mandate-row">
-        <span id="out-fee-label">Mandate / Surcharge (0%)</span>
-        <span class="val" id="out-fee">$0.00</span>
-      </div>
-      <div class="line-item">
-        <span id="out-tax-label">Sales Tax (9.13%)</span>
-        <span class="val" id="out-tax">$0.00</span>
-      </div>
-      <div class="line-item">
-        <span>Tip Amount</span>
-        <span class="val" id="out-tip">$0.00</span>
-      </div>
-
-      <div class="receipt-divider"></div>
-
-      <div class="line-item grand">
-        <span>Grand Total</span>
-        <span class="val" id="out-grand">$0.00</span>
-      </div>
-
-      <div class="split-banner" id="copy-split-box" role="button" tabindex="0">
-        <div class="split-meta">
-          <span class="split-heading" id="per-person-label">Your Total</span>
-          <span class="split-sub" id="copy-hint-text">Tap to copy breakdown</span>
-        </div>
-        <span class="split-figure" id="out-split">$0.00</span>
-      </div>
-    </section>
   </main>
 
   <script>
@@ -770,9 +928,11 @@
     }
 
     function compute() {
-      const rawBill = Math.max(0, parseFloat(billEl.value) || 0);
-      clearBillBtn.classList.toggle('visible', billEl.value.length > 0);
+      const valStr = billEl.value || '';
+      clearBillBtn.classList.toggle('visible', valStr.length > 0);
+      billEl.classList.toggle('compact-font', valStr.length > 6);
 
+      const rawBill = Math.max(0, parseFloat(valStr) || 0);
       const taxRate = Math.max(0, parseFloat(taxRateEl.value) || 0);
       const feeRate = Math.max(0, parseFloat(feeRateEl.value) || 0);
       const k = Math.max(1, parseInt(splitEl.value, 10) || 1);
@@ -801,7 +961,6 @@
         afterTaxTotal = rawBill;
       }
 
-      // Update live dollar previews inside each tip pill
       [20, 18, 15, 12].forEach(pct => {
         const el = document.getElementById(`preview-${pct}`);
         if (el) {
